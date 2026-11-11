@@ -50,12 +50,16 @@ npm install
 npm run dev
 ```
 
-Buka `http://localhost:3000/login`, lalu pilih:
+Buka `http://localhost:3000/login` dan gunakan salah satu akun demo berikut:
 
-- **Masuk sebagai Admin Sarpras** untuk mencoba fungsi pengelolaan.
-- **Masuk sebagai Warga Sekolah** untuk mencoba fungsi pelaporan dan pengajuan.
+| Role | Email | Password |
+|---|---|---|
+| Admin Sarpras | `admin@sipras.local` | `AdminSipras#2026` |
+| Warga Sekolah | `warga@sipras.local` | `WargaSipras#2026` |
 
-Data contoh disimpan di browser yang sedang digunakan. Data ini bukan data sekolah sebenarnya. Mode demo hanya untuk presentasi alur dan UI; `localStorage` bukan sistem penyimpanan aman untuk penggunaan produksi.
+Tombol akun demo akan mengisikan email dan password secara otomatis. Klik **Masuk ke dashboard** untuk login.
+
+**Penting:** kredensial ini hanya untuk mode demo lokal. Kredensial disimpan di kode frontend dan BUKAN akun aman untuk produksi. Data contoh disimpan di browser yang sedang digunakan. Untuk penggunaan sungguhan, hubungkan Supabase dan buat akun melalui Supabase Auth seperti dijelaskan di bagian berikutnya.
 
 ## Menghubungkan Supabase
 
@@ -85,7 +89,14 @@ Migration membuat tabel, indeks, helper function, trigger `updated_at`, kebijaka
 
 ### 4. Buat akun pengguna
 
-Untuk MVP ini tidak ada pendaftaran publik. Admin membuat akun melalui **Authentication → Users → Add user** di Supabase Dashboard. Setelah user dibuat, salin UUID user dari daftar Authentication.
+Untuk MVP ini tidak ada pendaftaran publik. Akun produksi harus dibuat melalui **Authentication → Users → Add user** di Supabase Dashboard. Buat dua akun, misalnya:
+
+| Role | Email contoh | Password |
+|---|---|---|
+| Admin Sarpras | `admin@sekolah.sch.id` | Buat password kuat di Supabase Auth |
+| Warga Sekolah | `warga@sekolah.sch.id` | Buat password kuat di Supabase Auth |
+
+Jangan memakai password demo di atas untuk akun produksi. Setelah kedua akun dibuat, jalankan `supabase/provision_demo_profiles.sql` melalui SQL Editor untuk memasangkan dua akun tersebut dengan role dan sekolah contoh. Jika menggunakan email berbeda, ubah alamat email pada file SQL sebelum menjalankannya.
 
 `seed.sql` menyediakan sekolah contoh dengan ID:
 

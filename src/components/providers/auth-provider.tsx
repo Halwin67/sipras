@@ -10,6 +10,7 @@ interface AuthContextValue {
   demoMode: boolean;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
   signInDemo: (role: UserRole) => void;
+  signInDemoWithCredentials: (email: string, password: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
 }
 
@@ -97,13 +98,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(nextProfile);
   }, []);
 
+  // Demo-only credentials. These are intentionally local and must never be used
+  // as production credentials. Production accounts are managed by Supabase Auth.
+  const signInDemoWithCredentials = useCallback(async (email: string, password: string) => {
+    if (supabase) return { error: "Akun demo hanya tersedia saat Supabase belum dikonfigurasi." };
+    const normalizedEmail = email.trim().toLowerCase();
+    const demoAccounts = [
+      { email: "admin@sipras.local", password: "AdminSipras#2026", role: "admin" as const },
+      { email: "warga@sipras.local", password: "WargaSipras#2026", role: "warga_sekolah" as const },
+    ];
+    const matched = demoAccounts.find((account) => account.email === normalizedEmail && account.password === password);
+    if (!matched) return { error: "Email atau password demo tidak sesuai." };
+
+    const role = matched.role;
+    const nextProfile: Profile = {
+      id: role === "admin" ? "demo-admin" : "demo-warga",
+      school_id: "demo-school",
+      full_name: role === "admin" ? "Admin Sarpras" : "Nadia Putri",
+      email: matched.email,
+      role,
+      class_or_department: role === "admin" ? "Pengelola Sarpras" : "XI RPL 1",
+    };
+    localStorage.setItem(DEMO_KEY, JSON.stringify(nextProfile));
+    setProfile(nextProfile);
+    return {};
+  }, [supabase]);
+
   const signOut = useCallback(async () => {
     if (supabase) await supabase.auth.signOut();
     localStorage.removeItem(DEMO_KEY);
     setProfile(null);
   }, [supabase]);
 
-  const value = useMemo(() => ({ profile, loading, demoMode, signIn, signInDemo, signOut }), [profile, loading, demoMode, signIn, signInDemo, signOut]);
+  const value = useMemo(() => ({ profile, loading, demoMode, signIn, signInDemo, signInDemoWithCredentials, signOut }), [profile, loading, demoMode, signIn, signInDemo, signInDemoWithCredentials, signOut]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
